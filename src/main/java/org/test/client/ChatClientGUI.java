@@ -19,34 +19,53 @@ public class ChatClientGUI extends JFrame {
         setSize(400, 500);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
+        // Styling variables
+        Color backgroundColor = new Color(240, 240, 240); // Light gray background
+        Color buttonColor = new Color(75, 75, 75); // Darker gray for buttons
+        Color textColor = new Color(50, 50, 50); // Almost black for text
+        Font textFont = new Font("Arial", Font.PLAIN, 14);
+        Font buttonFont = new Font("Arial", Font.BOLD, 12);
+
+        // Apply styles to the message area
+        messageArea = new JTextArea();
+        messageArea.setEditable(false);
+        messageArea.setBackground(backgroundColor);
+        messageArea.setForeground(textColor);
+        messageArea.setFont(textFont);
+        JScrollPane scrollPane = new JScrollPane(messageArea);
+        add(scrollPane, BorderLayout.CENTER);
+
         messageArea = new JTextArea();
         messageArea.setEditable(false);
         add(new JScrollPane(messageArea), BorderLayout.CENTER);
 
         textField = new JTextField();
-        textField.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                client.sendMessage(textField.getText());
-                textField.setText("");
-            }
-        });
-        add(textField, BorderLayout.SOUTH);
-
         // Prompt for username
         String name = JOptionPane.showInputDialog(this, "Enter your name:", "Username", JOptionPane.PLAIN_MESSAGE);
         // Set window title to include username
         setTitle("Chat Client - " + name);
 
-        // Modify actionPerformed to include username and timestamp
-        textField.addActionListener(e -> {
-            String message = "[" + new SimpleDateFormat("HH:mm:ss").format(new Date()) + "] " + name + ": " + textField.getText();
-            client.sendMessage(message);
-            textField.setText("");
+        // Apply styles to the text field
+        textField = new JTextField();
+        textField.setFont(textFont);
+        textField.setForeground(textColor);
+        textField.setBackground(backgroundColor);
+        textField.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                String message = "[" + new SimpleDateFormat("HH:mm:ss").format(new Date()) + "] " + name + ": "
+                        + textField.getText();
+                client.sendMessage(message);
+                textField.setText("");
+            }
         });
+        add(textField, BorderLayout.SOUTH);
 
         // Initialize the exit button
         exitButton = new JButton("Exit");
+        // Apply styles to the exit button and initialize it
+        exitButton.setFont(buttonFont);
+        exitButton.setBackground(buttonColor);
+        exitButton.setForeground(Color.WHITE);
         // Exit the application
         exitButton.addActionListener(e -> {
             // Send a departure message to the server
@@ -64,6 +83,8 @@ public class ChatClientGUI extends JFrame {
             System.exit(0);
         });
         JPanel bottomPanel = new JPanel(new BorderLayout());
+        // Apply background color to the panel
+        bottomPanel.setBackground(backgroundColor);
         bottomPanel.add(textField, BorderLayout.CENTER);
         bottomPanel.add(exitButton, BorderLayout.EAST);
         add(bottomPanel, BorderLayout.SOUTH);
