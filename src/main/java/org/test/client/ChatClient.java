@@ -6,12 +6,14 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.function.Consumer;
 
 public class ChatClient {
-    private Socket socket = null;
-    private BufferedReader inputConsole = null;
-    private PrintWriter out = null;
-    private BufferedReader in = null;
+    private Socket socket;
+    private BufferedReader inputConsole;
+    private PrintWriter out;
+    private BufferedReader in;
+    private Consumer<String> onMessageReceived;
 
     public ChatClient(String address, int port) {
         try {
@@ -35,6 +37,30 @@ public class ChatClient {
         } catch (IOException e) {
             System.out.println("I/O error: " + e.getMessage());
         }
+    }
+
+    public ChatClient(String address, int port, Consumer<String> onMessageReceived) throws IOException {
+        this.socket = new Socket(address, port);
+        this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        this.out = new PrintWriter(socket.getOutputStream(), true);
+        this.onMessageReceived = onMessageReceived;
+    }
+
+    public void sendMessage(String msg) {
+        out.println(msg);
+    }
+
+    public void startClient() {
+        new Thread(() -> {
+            try {
+                String msg;
+                while ((msg = in.readLine()) != null) {
+                    onMessageReceived.accept(msg);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
 
     public static void main(String[] args) {
